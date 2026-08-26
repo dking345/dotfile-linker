@@ -54,6 +54,8 @@ dotlink link <repo-dir> [target-dir]
 
   -dry-run   print what would happen without changing anything
   -force     replace existing symlinks that point somewhere else
+
+dotlink status <repo-dir> [target-dir]
 ```
 
 `target-dir` defaults to `$HOME`. Files named `.git`, `.gitignore`,
@@ -70,6 +72,16 @@ link    /home/dking345/.vimrc -> /home/dking345/dotfiles/.vimrc
 link    /home/dking345/.config -> /home/dking345/dotfiles/.config
 ```
 
+`status` reports the same kind of information but never touches the
+filesystem, so it's safe to run any time just to see where things stand:
+
+```
+$ dotlink status ~/dotfiles
+linked    /home/dking345/.gitconfig
+conflict  /home/dking345/.vimrc (file differs from repo)
+missing   /home/dking345/.config
+```
+
 ## Building
 
 Standard library only, no external dependencies.
@@ -80,4 +92,5 @@ go build -o dotlink .
 
 ## Status
 
-Early. `link` is the only command. See the roadmap for what's missing.
+Early. `link` and `status` are the only commands. See the roadmap for what's
+missing.

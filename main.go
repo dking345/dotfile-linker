@@ -42,6 +42,33 @@ func main() {
 			fmt.Fprintln(os.Stderr, "dotlink:", err)
 			os.Exit(1)
 		}
+	case "status":
+		statusCmd := flag.NewFlagSet("status", flag.ExitOnError)
+		statusCmd.Parse(os.Args[2:])
+
+		args := statusCmd.Args()
+		if len(args) < 1 {
+			fmt.Fprintln(os.Stderr, "usage: dotlink status <repo-dir> [target-dir]")
+			os.Exit(1)
+		}
+
+		repoDir := args[0]
+		targetDir := ""
+		if len(args) > 1 {
+			targetDir = args[1]
+		} else {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "dotlink: could not determine home directory:", err)
+				os.Exit(1)
+			}
+			targetDir = home
+		}
+
+		if err := runStatus(repoDir, targetDir); err != nil {
+			fmt.Fprintln(os.Stderr, "dotlink:", err)
+			os.Exit(1)
+		}
 	case "-h", "--help", "help":
 		usage()
 	default:
@@ -54,9 +81,10 @@ func usage() {
 	fmt.Fprintln(os.Stderr, `dotlink - symlink a dotfiles repo into your home directory
 
 usage:
-  dotlink link <repo-dir> [target-dir]   symlink top-level entries of repo-dir into target-dir (default: $HOME)
+  dotlink link <repo-dir> [target-dir]     symlink top-level entries of repo-dir into target-dir (default: $HOME)
+  dotlink status <repo-dir> [target-dir]   report drift between repo-dir and target-dir without changing anything
 
-flags:
+flags for link:
   -dry-run   print what would happen without changing anything
   -force     replace existing symlinks that point somewhere else`)
 }
