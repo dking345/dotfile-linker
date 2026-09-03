@@ -55,6 +55,10 @@ dotlink link <repo-dir> [target-dir]
   -dry-run   print what would happen without changing anything
   -force     replace existing symlinks that point somewhere else
 
+dotlink unlink <repo-dir> [target-dir]
+
+  -dry-run   print what would happen without changing anything
+
 dotlink status <repo-dir> [target-dir]
 ```
 
@@ -71,6 +75,14 @@ backup  /home/dking345/.vimrc -> /home/dking345/.vimrc.dotlink-bak-20260824-1015
 link    /home/dking345/.vimrc -> /home/dking345/dotfiles/.vimrc
 link    /home/dking345/.config -> /home/dking345/dotfiles/.config
 ```
+
+`unlink` walks the same top-level entries and, for any that are still a
+symlink pointing into the repo, removes the symlink. If a backup from an
+earlier `link` run exists (`<name>.dotlink-bak-<timestamp>`), the newest one
+is renamed back into place; otherwise the entry is simply gone from
+`target-dir`. Entries that aren't symlinks pointing into the repo — because
+they were never linked, or because `link -force` skipped them — are left
+untouched.
 
 `status` reports the same kind of information but never touches the
 filesystem, so it's safe to run any time just to see where things stand:
@@ -92,5 +104,5 @@ go build -o dotlink .
 
 ## Status
 
-Early. `link` and `status` are the only commands. See the roadmap for what's
-missing.
+Early. `link`, `unlink`, and `status` are the only commands. See the roadmap
+for what's missing.
