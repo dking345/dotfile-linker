@@ -15,6 +15,11 @@ func runStatus(repoDir, targetDir string) error {
 		return fmt.Errorf("resolving repo dir: %w", err)
 	}
 
+	ignore, err := loadIgnore(repoDir)
+	if err != nil {
+		return err
+	}
+
 	entries, err := os.ReadDir(repoDir)
 	if err != nil {
 		return fmt.Errorf("reading repo dir: %w", err)
@@ -23,7 +28,7 @@ func runStatus(repoDir, targetDir string) error {
 	drift := 0
 	for _, entry := range entries {
 		name := entry.Name()
-		if ignoreEntries[name] {
+		if ignore[name] {
 			continue
 		}
 

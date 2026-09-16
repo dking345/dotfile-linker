@@ -66,6 +66,16 @@ dotlink status <repo-dir> [target-dir]
 `README.md`, and `LICENSE` at the top of the repo are skipped automatically,
 since those describe the repo, not your home directory.
 
+To skip additional top-level entries, add a `.dotlinkignore` file at the
+root of the repo, one name per line. Blank lines and lines starting with
+`#` are ignored:
+
+```
+# machine-specific, not meant to be shared
+work-only.conf
+scripts/
+```
+
 Example, checking what a link run would do before committing to it:
 
 ```

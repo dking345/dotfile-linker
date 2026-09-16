@@ -7,19 +7,15 @@ import (
 	"time"
 )
 
-// entries at the top of a dotfiles repo that are about the repo itself,
-// not something that should end up symlinked into $HOME.
-var ignoreEntries = map[string]bool{
-	".git":       true,
-	".gitignore": true,
-	"README.md":  true,
-	"LICENSE":    true,
-}
-
 func runLink(repoDir, targetDir string, dryRun, force bool) error {
 	repoDir, err := filepath.Abs(repoDir)
 	if err != nil {
 		return fmt.Errorf("resolving repo dir: %w", err)
+	}
+
+	ignore, err := loadIgnore(repoDir)
+	if err != nil {
+		return err
 	}
 
 	entries, err := os.ReadDir(repoDir)
@@ -29,7 +25,7 @@ func runLink(repoDir, targetDir string, dryRun, force bool) error {
 
 	for _, entry := range entries {
 		name := entry.Name()
-		if ignoreEntries[name] {
+		if ignore[name] {
 			continue
 		}
 

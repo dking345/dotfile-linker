@@ -17,6 +17,11 @@ func runUnlink(repoDir, targetDir string, dryRun bool) error {
 		return fmt.Errorf("resolving repo dir: %w", err)
 	}
 
+	ignore, err := loadIgnore(repoDir)
+	if err != nil {
+		return err
+	}
+
 	entries, err := os.ReadDir(repoDir)
 	if err != nil {
 		return fmt.Errorf("reading repo dir: %w", err)
@@ -24,7 +29,7 @@ func runUnlink(repoDir, targetDir string, dryRun bool) error {
 
 	for _, entry := range entries {
 		name := entry.Name()
-		if ignoreEntries[name] {
+		if ignore[name] {
 			continue
 		}
 
