@@ -17,6 +17,7 @@ func main() {
 		linkCmd := flag.NewFlagSet("link", flag.ExitOnError)
 		dryRun := linkCmd.Bool("dry-run", false, "show what would happen without touching the filesystem")
 		force := linkCmd.Bool("force", false, "replace symlinks that point somewhere else")
+		only := linkCmd.String("only", "", "link only this top-level entry instead of the whole repo")
 		linkCmd.Parse(os.Args[2:])
 
 		args := linkCmd.Args()
@@ -38,7 +39,7 @@ func main() {
 			targetDir = home
 		}
 
-		if err := runLink(repoDir, targetDir, *dryRun, *force); err != nil {
+		if err := runLink(repoDir, targetDir, *only, *dryRun, *force); err != nil {
 			fmt.Fprintln(os.Stderr, "dotlink:", err)
 			os.Exit(1)
 		}
@@ -116,6 +117,7 @@ usage:
 flags for link:
   -dry-run   print what would happen without changing anything
   -force     replace existing symlinks that point somewhere else
+  -only      link only this top-level entry instead of the whole repo
 
 flags for unlink:
   -dry-run   print what would happen without changing anything`)

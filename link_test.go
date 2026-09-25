@@ -254,6 +254,43 @@ func TestLinkOne_DifferingFileBacksUpAndLinks(t *testing.T) {
 	}
 }
 
+func TestRunLink_OnlyLinksSingleEntry(t *testing.T) {
+	repoDir := t.TempDir()
+	targetDir := t.TempDir()
+	mustWriteFile(t, filepath.Join(repoDir, "wanted.conf"), "content")
+	mustWriteFile(t, filepath.Join(repoDir, "other.conf"), "content")
+
+	if err := runLink(repoDir, targetDir, "wanted.conf", false, false); err != nil {
+		t.Fatalf("runLink: %v", err)
+	}
+
+	if _, exists := lstatMode(t, filepath.Join(targetDir, "wanted.conf")); !exists {
+		t.Fatal("wanted.conf was not linked")
+	}
+	if _, exists := lstatMode(t, filepath.Join(targetDir, "other.conf")); exists {
+		t.Fatal("other.conf was linked, want it left alone")
+	}
+}
+
+func TestRunLink_OnlyMissingEntryErrors(t *testing.T) {
+	repoDir := t.TempDir()
+	targetDir := t.TempDir()
+
+	if err := runLink(repoDir, targetDir, "nope.conf", false, false); err == nil {
+		t.Fatal("expected error for entry not present in repo")
+	}
+}
+
+func TestRunLink_OnlyIgnoredEntryErrors(t *testing.T) {
+	repoDir := t.TempDir()
+	targetDir := t.TempDir()
+	mustWriteFile(t, filepath.Join(repoDir, "README.md"), "docs")
+
+	if err := runLink(repoDir, targetDir, "README.md", false, false); err == nil {
+		t.Fatal("expected error for ignored entry")
+	}
+}
+
 func TestLinkOne_DifferingFileDryRunLeavesUntouched(t *testing.T) {
 	dir := t.TempDir()
 	src := filepath.Join(dir, "src.conf")

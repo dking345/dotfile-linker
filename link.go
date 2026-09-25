@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func runLink(repoDir, targetDir string, dryRun, force bool) error {
+func runLink(repoDir, targetDir, only string, dryRun, force bool) error {
 	repoDir, err := filepath.Abs(repoDir)
 	if err != nil {
 		return fmt.Errorf("resolving repo dir: %w", err)
@@ -16,6 +16,20 @@ func runLink(repoDir, targetDir string, dryRun, force bool) error {
 	ignore, err := loadIgnore(repoDir)
 	if err != nil {
 		return err
+	}
+
+	if only != "" {
+		if ignore[only] {
+			return fmt.Errorf("%s is ignored (see %s)", only, ignoreFileName)
+		}
+		src := filepath.Join(repoDir, only)
+		if _, err := os.Lstat(src); err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("%s: no such entry in %s", only, repoDir)
+			}
+			return err
+		}
+		return linkOne(src, filepath.Join(targetDir, only), dryRun, force)
 	}
 
 	entries, err := os.ReadDir(repoDir)
